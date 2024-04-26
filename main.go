@@ -21,6 +21,8 @@ func main() {
 }
 
 func isValidJson(data []byte) bool {
+	data = bytes.TrimSpace(data)
+
 	if len(data) == 0 {
 		return false
 	}
@@ -32,6 +34,20 @@ func isValidJson(data []byte) bool {
 	if !bytes.HasSuffix(data, []byte("}")) {
 		return false
 	}
+
+	l := NewLexer(data)
+
+	for {
+		err := l.NextChar()
+		if err != nil {
+			return false
+		}
+
+		if l.ch == 0 {
+			break
+		}
+	}
+	// read till end of input
 
 	return true
 }
