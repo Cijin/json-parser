@@ -69,6 +69,26 @@ func (l *lexer) readString() {
 	}
 }
 
+func (l *lexer) readArray() error {
+	// currently at '['
+	l.readChar()
+
+	for l.ch != ']' {
+		if l.ch == 0 {
+			return fmt.Errorf("array not terminated")
+		}
+
+		if err := l.NextChar(); err != nil {
+			return err
+		}
+	}
+
+	// currently at ']'
+	l.readChar()
+
+	return nil
+}
+
 // returns keyword and advances read position
 func (l *lexer) readKeyword() error {
 	var keyword []byte
@@ -115,6 +135,11 @@ func (l *lexer) NextChar() error {
 		l.readString()
 		if l.ch == 0 {
 			return fmt.Errorf("unterminated string")
+		}
+
+	case '[':
+		if err := l.readArray(); err != nil {
+			return err
 		}
 
 	case ',':

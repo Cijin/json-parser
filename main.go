@@ -17,6 +17,8 @@ func main() {
 		log.Fatal("error reading file:", err)
 	}
 
+	os.Stdout.Write(data)
+
 	fmt.Printf("Are contents of %s, valid json: %t\n", fileName, isValidJson(data))
 }
 
@@ -40,6 +42,7 @@ func isValidJson(data []byte) bool {
 	for {
 		err := l.NextChar()
 		if err != nil {
+			fmt.Println(err)
 			return false
 		}
 
