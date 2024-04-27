@@ -16,6 +16,8 @@ func TestParseJson(t *testing.T) {
 		{input: "tests/step2/invalid.json", expected: false},
 		{input: "tests/step2/valid2.json", expected: true},
 		{input: "tests/step2/invalid2.json", expected: false},
+		{input: "tests/step3/valid.json", expected: true},
+		{input: "tests/step3/invalid.json", expected: false},
 	}
 
 	for i, test := range tests {

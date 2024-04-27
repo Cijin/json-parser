@@ -1,6 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
+
+var keywords = [][]byte{
+	[]byte("null"),
+	[]byte("true"),
+	[]byte("false"),
+}
 
 type lexer struct {
 	input []byte
@@ -41,7 +50,7 @@ func (l *lexer) peak() byte {
 }
 
 func (l *lexer) skipWhiteSpace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+	for isWhiteSpace(l.ch) {
 		l.readChar()
 	}
 }
@@ -58,6 +67,40 @@ func (l *lexer) readString() {
 
 		l.readChar()
 	}
+}
+
+// returns keyword and advances read position
+func (l *lexer) readKeyword() error {
+	var keyword []byte
+
+	for l.ch != ',' || isWhiteSpace(l.ch) {
+		if l.ch == 0 {
+			return fmt.Errorf("unexpected EOF")
+		}
+
+		keyword = append(keyword, l.ch)
+
+		l.readChar()
+	}
+
+	if !isValidKeyword(keyword) {
+		return fmt.Errorf("unidentified keyword")
+	}
+
+	return nil
+}
+
+func isValidKeyword(word []byte) bool {
+	for _, keyword := range keywords {
+		if bytes.Compare(word, keyword) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func isWhiteSpace(ch byte) bool {
+	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
 func isLetter(ch byte) bool {
@@ -81,7 +124,9 @@ func (l *lexer) NextChar() error {
 
 	default:
 		if isLetter(l.ch) {
-			return fmt.Errorf("invalid character")
+			if err := l.readKeyword(); err != nil {
+				return err
+			}
 		}
 	}
 
